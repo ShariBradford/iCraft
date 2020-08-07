@@ -1,0 +1,3 @@
+{% for key, message in messages.items %}
+<span class="alert{% if message.tag %} alert-{{ message.tag }}{% endif %} py-1 my-1" role="alert">{{ message.message }}</span>
+{% endfor %}
