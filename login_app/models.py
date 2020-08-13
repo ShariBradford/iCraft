@@ -149,8 +149,26 @@ class User(models.Model):
     password = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
+    # company = models.CharField(max_length=255, blank=True)
+    # address = models.CharField(max_length=255, blank=True)
+    # city = models.CharField(max_length=255, blank=True)
+    # state = USStateField(blank=True)
+    # bio =  models.TextField()
+    # # for the Interest side of the many-to-many relationship, 
+    # # use the text field name to avoid a circular reference
+    # # in the import statements
+    # areas_of_interest = models.ManyToManyField('classes.Interest',related_name="interested_users")
 
     objects = UserManager()
 
     def __str__(self):
         return f'{self.first_name} {self.last_name} ({self.id})'
+
+    def full_name(self):
+        return f'{self.first_name} {self.last_name}'
+
+    def first_name_last_initial(self):
+        return f'{self.first_name} {self.last_name[0]}.'
+
+    def get_absolute_url(self):
+        return f'/users/{self.id}'

@@ -1,0 +1,72 @@
+* {
+    box-sizing: border-box;
+}
+
+.card {
+    position: relative;
+    width: 300px;
+}
+
+.card .favorite {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    /*cursor: pointer;*/
+}
+
+.card .favorite img {
+    width: 32px;
+}
+
+.card .areas-of-interest img, 
+.course-details .areas-of-interest img,
+.user-profile .areas-of-interest img {
+    width: 24px;
+    height: 24px;
+}
+
+img.course-type {
+    width: 24px;
+}
+.blue {
+    color: #009ec3;
+}
+
+.course-header {
+    text-align:center;
+}
+
+.course-details .course-image {
+    flex: 3;
+}
+
+.course-details .course-image img {
+    width: 100%;
+}
+
+ul.attendees li {
+    display: inline-block;
+    text-decoration: none;
+}
+
+ul.attendees li::after {
+    content: ' | ';
+}
+
+ul.attendees li:last-child::after {
+    content: '';
+}
+
+.user-profile .profile-image img {
+    border: 1px solid #009ec3;
+}
+
+.card .recommended {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color:#009EC3;
+    font-weight:bold;
+    font-size:8pt;
+}
+

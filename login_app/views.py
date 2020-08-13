@@ -1,9 +1,16 @@
 from django.shortcuts import render, redirect, HttpResponse
 from .models import User
-from trips.models import Trip
+from classes.models import *
 import bcrypt
 from django.contrib import messages
-from trips.templates import *
+from django.conf import settings
+import os
+import json
+import random
+
+path = os.path.join(settings.BASE_DIR, 'login_app/static/test_users.json') 
+with open(path, 'r') as data:
+    user_data = json.load(data)
 
 def index(request): 
     return render(request,'index.html')
@@ -21,7 +28,7 @@ def register(request):
         user = User.objects.register(request.POST)
         request.session['user_id'] = user.id
         messages.success(request,"Successfully logged in!")
-        return redirect('/trips')
+        return redirect('/classes')
 
 def login(request):
     if request.method != "POST":
@@ -30,7 +37,7 @@ def login(request):
     if User.objects.authenticate(request.POST['email'],request.POST['login_password']):
         user = User.objects.get(email=request.POST['email'])
         request.session['user_id'] = user.id
-        return redirect('/trips')
+        return redirect('/classes')
     else:
         request.session.clear()
         messages.error(request,"Invalid email or password.",extra_tags="login")
@@ -75,3 +82,78 @@ def validate_fields(request):
     # print(context)
 
     return render(request, 'validation-messages.html',context)
+
+
+def user_profile(request,profiled_user_id):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/')
+    
+    profiled_user = User.objects.get(id=profiled_user_id)
+    location = profiled_user.profile.state or ''
+
+    context = {
+        'user': User.objects.get(id=request.session['user_id']),
+        'profiled_user': profiled_user,
+        'location': location,
+    }
+    return render(request, 'user-profile.html', context)
+
+def testdata(request):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/classes')
+
+    user = User.objects.get(id=request.session['user_id'])
+    context = {
+        'user': user,
+        'user_data': user_data,
+        'test_data': True,
+    }
+    return render(request, 'classes/test-data.html',context)
+
+def create_users(request):
+    i = 0
+    for user in user_data["results"]:
+        if user["dob"]["age"] <= 13:
+            continue
+
+        if User.objects.filter(first_name=user["name"]["first"], last_name=user["name"]["last"]):
+            messages.info(request,f'{user["name"]["first"]} {user["name"]["last"]} is already registered. Skipping.') 
+            continue
+
+        new_user = {
+            'first_name': user["name"]["first"],
+            'last_name': user["name"]["last"],
+            'email': user["email"],
+            'password': '123456789',
+            'password_confirm':'123456789',
+            'birth_date': user["dob"]["date"][0:10],
+        }
+
+        errors = User.objects.basic_validator(new_user)
+        if errors: 
+            # print(f'Error registering {new_user["first_name"]} {new_user["last_name"]}:')
+            for k,v in errors.items():
+                messages.add_message(request,messages.ERROR,v)
+        
+        else:
+            created_user = User.objects.register(new_user)
+            created_user.profile.address = f'{user["location"]["street"]["number"] } { user["location"]["street"]["name"] }'
+            created_user.profile.city = user["location"]["city"]
+            created_user.profile.state = user["location"]["state"]
+            created_user.profile.bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec ac fringilla ex. Integer in dictum justo, id ornare sapien. Phasellus id tempus odio. Vestibulum vitae ultrices tellus. Quisque id nisi nec tortor hendrerit suscipit. Pellentesque et viverra sapien, interdum iaculis ex. Quisque viverra lacus malesuada, maximus felis eu, mollis nisl. Nunc vel rutrum lorem. Morbi quis lobortis mauris, in lacinia justo. Mauris semper, magna eget mollis gravida, nisi felis mattis tortor, ut volutpat mi dui nec libero."
+            created_user.profile.birth_date = created_user.birth_date
+
+            num_interests = random.randint(1,8) #get a random number of interests
+            for j in range(num_interests):
+                interest_id = random.randint(1,8)
+                created_user.profile.areas_of_interest.add(Interest.objects.get(id=interest_id))
+            created_user.profile.save()
+
+            message = f"SUCCESS! Registered {created_user.full_name()}."
+            messages.success(request,message)
+        
+        i += 1
+        if i > 20:
+            break 
+
+    return redirect('/testing')

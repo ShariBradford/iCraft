@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'classes/style.css' %}">
+    <title>iCraft | Craft something new today!</title>
+</head>
+<body>   
+    <div class="container main">
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <a class="navbar-brand" href="/classes" title="Craft something new today!">iCraft</a>
+            <span class="navbar-text">Welcome, {{ user.first_name_last_initial }}, craft something new today!</span>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    {% if user.id == 1 %}
+                    <li class="nav-item">
+                        <a href="/testing" class="nav-link"><i class="fas fa-users-cog"></i>Test Data</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a href="/classes/favorites" class="nav-link"><i class="fas fa-bookmark"></i>Favorites</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/users/{{ user.id }}" class="nav-link"><i class="fas fa-user-cog"></i>Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        {% block login %}<a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i>Logout</a>{% endblock %}        
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- slim version of jquery does not contain ajax <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/5eddd1b245.js" crossorigin="anonymous"></script>
+    <!--<script src="{% static 'classes/main.js' %}"></script>-->
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% load static %}
+<div class="container courses">
+    <div class="row">
+        {% for course in courses %}
+        <div class="card mr-2" id="{{ course.id }}">
+
+            <img class="card-img-top" src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">
+
+            <div class="card-body">
+                <div class="d-flex justify-content-between mr-2">
+                    <!-- container for card top row -->
+                    <div class="d-inline-flex align-items-start">
+                        <!-- container for class name and class_type icon -->
+                        <h5 class="card-title">
+                            <a href="{{ course.get_absolute_url }}">{{ course.title }}</a>
+                        </h5>
+                        <img src="{% get_static_prefix %}classes/images/course-type-{{ course.location_type }}.jpg" class="course-type" title="{{ course.get_location_type_display }}">
+                    </div><!-- end container for class name and class_type icon -->
+                    <span class="attendees">
+                        <small style="font-weight:bold;"><i class="fas fa-users"></i> {{ course.attendees.count }}</small>/{{ course.max_size }}
+                    </span>
+                </div><!-- end card top row -->
+                <h6 class="card-subtitle mb-2 text-muted">by <a href="/users/{{ course.creator.id }}">{{ course.creator.first_name_last_initial }}</a></h6> 
+                <p class="card-text">
+                    {{ course.tag_line }}
+                </p>
+            </div> <!-- .card-body -->
+
+            <div class="card-footer d-flex justify-content-between">
+                <div class="areas-of-interest">
+                    {% for interest in course.areas_of_interest.all %}
+                    <a href="/classes/interests/{{ interest.id }}" class="card-link"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
+                    {% endfor %}
+                </div><!-- .areas-of-interest -->
+                <p class="card-text">
+                    <small class="text-muted">{{ course.date|date:"SHORT_DATE_FORMAT" }}</small>
+                </p>
+            </div><!-- end .card-footer -->
+
+            <div class="favorite">
+                {% if user in course.favorited_by.all %}
+                <a href="/classes/{{ course.id }}/unfavorite" title="Un-favorite">
+                    <span style="color:red;"><i class="fas fa-heart"></i></span>
+                </a>
+                {% else %}
+                <a href="/classes/{{ course.id }}/favorite" title="Favorite">
+                    <span style="color:gray;"><i class="fas fa-heart"></i></span>
+                </a>
+                {% endif %}
+            </div><!-- .favorite -->
+
+            {% for interest in course.areas_of_interest.all %}
+                {% if interest in user.profile.areas_of_interest.all %}
+                <div class="recommended">
+                    RECOMMENDED
+                </div>
+                {% endif %}
+            {% endfor %}
+
+        </div><!-- .card -->
+        {% endfor %}
+    </div>
+</div>

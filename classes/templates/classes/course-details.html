@@ -1,0 +1,34 @@
+{% extends 'classes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container course-details">
+    <div class="course-header">
+        <h2>{{ course.title }}</h2>
+        <h6 class="card-subtitle mb-2 text-muted">{{ course.tag_line }}</h6>
+        <h6 class="card-subtitle mb-2 text-muted">by <a href="/users/{{ course.creator.id }}">{{ course.creator.first_name_last_initial }}</a></h6>
+    </div>
+    
+    <div class="d-inline-flex justify-content-between align-items-start">
+        <p class="course-description col-sm-6 col-md-8">{{ course.description }}</p>
+        <div class="course-image col-sm-2 col-md-3">
+            <img src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">
+        </div>
+    </div>
+
+    <p>Date: {{ course.date|date:"m/d/Y g:i A" }}</p>
+    <p>
+        <ul class="attendees">Attendees: 
+        {% for attendee in course.attendees.all %}
+            <li><a href="/users/{{ attendee.id  }}">{{ attendee.first_name_last_initial }}</a></li>
+        {% endfor%}
+        </ul>
+    </p>
+    <div class="areas-of-interest">Areas of Interest: 
+        {% for interest in course.areas_of_interest.all %}
+        <a href="/classes/interests/{{ interest.id }}"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
+        {% endfor %}
+    </div><!-- .areas-of-interest -->
+
+</div>
+{% endblock content %}

@@ -1,0 +1,48 @@
+{% extends 'classes/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container user-profile">
+    <div class="course-header">
+        <h2>{{ profiled_user.full_name }}</h2>
+        <h6 class="mb-2 text-muted">Location: {{ location }}</h6> 
+    </div>    
+
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="col-sm-6 col-md-8">
+            <p>{{ profiled_user.profile.bio }}</p>
+            <div class="areas-of-interest">Interests: 
+                {% for interest in profiled_user.profile.areas_of_interest.all %}
+                <a href="/classes/interests/{{ interest.id }}"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
+                {% endfor %}
+            </div><!-- .areas-of-interest -->    
+        </div>
+        <div class="profile-image col-sm-2 col-md-3">
+            <img src="{% get_static_prefix %}classes/images/user-{{ profiled_user.id }}.jpg" alt="Image of {{ profiled_user.first_name_last_initial }}">
+        </div>
+    </div>
+
+    {% if profiled_user.favorite_courses.count > 0 %}
+    <div>
+        <h1>Favorite Courses</h1>
+        <p>{{ profiled_user.favorite_courses.all }}</p>
+        {% include 'classes/card-course.html' with courses=profiled_user.favorite_courses.all %}    
+    </div>
+    {% endif %}
+
+    {% if profiled_user.courses_attended.count > 0 %}
+    <div>
+        <h1>Enrolled Courses</h1>
+        {% include 'classes/card-course.html' with courses=profiled_user.courses_attended.all %}    
+    </div>
+    {% endif %}
+
+    {% if profiled_user.courses_created.count > 0 %}    
+    <div>
+        <h1>Courses Created</h1>
+        {% include 'classes/card-course.html' with courses=profiled_user.courses_created.all %}    
+    </div>
+    {% endif %}
+</div>
+
+{% endblock content %}
