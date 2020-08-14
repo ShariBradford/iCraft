@@ -25,7 +25,6 @@
     {% if profiled_user.favorite_courses.count > 0 %}
     <div>
         <h1>Favorite Courses</h1>
-        <p>{{ profiled_user.favorite_courses.all }}</p>
         {% include 'classes/card-course.html' with courses=profiled_user.favorite_courses.all %}    
     </div>
     {% endif %}

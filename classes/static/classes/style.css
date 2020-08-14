@@ -7,6 +7,20 @@
     width: 300px;
 }
 
+.card-body {
+    position: relative;
+}
+
+.card-img-top {
+    max-height: 175px;
+}
+
+.card.interest {
+    width: 200px;
+    margin: 10px;
+    /*padding: 10px;*/
+}
+
 .card .favorite {
     position: absolute;
     top: 20px;
@@ -44,15 +58,20 @@ img.course-type {
     width: 100%;
 }
 
+ul.actions li,
 ul.attendees li {
     display: inline-block;
     text-decoration: none;
 }
 
+ul.actions li::after,
 ul.attendees li::after {
     content: ' | ';
+    margin-left: 2px;
+    margin-right: 2px;
 }
 
+ul.actions li:last-child::after,
 ul.attendees li:last-child::after {
     content: '';
 }
@@ -70,3 +89,28 @@ ul.attendees li:last-child::after {
     font-size:8pt;
 }
 
+.card.interest .card-footer {
+    display: flex;
+    justify-content: center;
+    padding: 12px 5px;
+    font-size: 8pt !important;
+}
+
+ul.actions {
+    margin: 0;
+    padding: 0;
+}
+
+ul.actions .fas {
+    margin-right: 5px;
+}
+
+.required {
+    color:red;
+}
+
+.edit-course {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}

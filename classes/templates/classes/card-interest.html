@@ -1,0 +1,43 @@
+{% load static %}
+<div class="container interests">
+    <div class="row">
+        {% for interest in areas_of_interest.all %}
+        <div class="card interest">
+            <img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" class="card-img-top" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
+            <div class="card-body">
+                <h5 class="card-title">{{ interest.name }}</h5>
+                <p class="card-text">{{ interest.description }}</p>
+            </div>
+            <div class="card-footer">
+                <ul class="actions">
+                    <li class="action">
+                        <a href="{% url 'classes:update_interest' interest_id=interest.id %}">
+                            <i class="fas fa-pen"></i>Edit
+                        </a>
+                    </li>
+
+                    {% if interest in user.profile.areas_of_interest.all %}
+                    <li class="action" title="Not interested. Remove from my profile.">
+                        <a href="{% url 'classes:remove_interest' interest_id=interest.id %}">
+                            <i class="fas fa-user-times"></i>Remove from Profile
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="action" title="I like this area. Add it to my bio.">
+                        <a href="{% url 'classes:add_interest' interest_id=interest.id %}">
+                            <i class="fas fa-user-check"></i>Add to Profile
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="action">
+                        <a href="{% url 'classes:interest_classes' interest_id=interest.id %}">
+                            Related Classes
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

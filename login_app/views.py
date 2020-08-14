@@ -81,7 +81,7 @@ def validate_fields(request):
     }
     # print(context)
 
-    return render(request, 'validation-messages.html',context)
+    return render(request, 'validation-messages.html', context)
 
 
 def user_profile(request,profiled_user_id):

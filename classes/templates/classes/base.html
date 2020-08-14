@@ -12,7 +12,7 @@
 <body>   
     <div class="container main">
         <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <a class="navbar-brand" href="/classes" title="Craft something new today!">iCraft</a>
+            <a class="navbar-brand" href="{% url 'classes:index' %}" title="Craft something new today!">iCraft</a>
             <span class="navbar-text">Welcome, {{ user.first_name_last_initial }}, craft something new today!</span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,18 +22,18 @@
                 <ul class="navbar-nav">
                     {% if user.id == 1 %}
                     <li class="nav-item">
-                        <a href="/testing" class="nav-link"><i class="fas fa-users-cog"></i>Test Data</a>
+                        <a href="{% url 'login_app:test_data' %}" class="nav-link"><i class="fas fa-users-cog"></i>Test Data</a>
                     </li>
                     {% endif %}
 
                     <li class="nav-item">
-                        <a href="/classes/favorites" class="nav-link"><i class="fas fa-bookmark"></i>Favorites</a>
+                        <a href="{% url 'classes:favorite_classes' %}" class="nav-link"><i class="fas fa-bookmark"></i>Favorites</a>
                     </li>
                     <li class="nav-item">
-                        <a href="/users/{{ user.id }}" class="nav-link"><i class="fas fa-user-cog"></i>Profile</a>
+                        <a href="{% url 'login_app:user_profile' profiled_user_id=user.id %}" class="nav-link"><i class="fas fa-user-cog"></i>Profile</a>
                     </li>
                     <li class="nav-item">
-                        {% block login %}<a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i>Logout</a>{% endblock %}        
+                        {% block login %}<a href="{% url 'login_app:logout' %}" class="nav-link"><i class="fas fa-sign-out-alt"></i>Logout</a>{% endblock %}        
                     </li>
                 </ul>
             </div>

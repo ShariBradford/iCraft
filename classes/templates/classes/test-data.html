@@ -2,7 +2,16 @@
 {% load static %}
 
 {% block content %}
-    <h1>Test Data</h1>
-    <a href="/createusers">Create Users</a>
+    {% if messages %}
+    {% for message in messages %}
+        {% if "login" in message.extra_tags %}
+        <p class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} py-1 my-1" role="alert">                                
+        {{ message }}
+        </p>
+        {% endif %}
+    {%  endfor %}
+    {% endif %}
+    <h1>Test User Data</h1>
+    <a href="{% url 'login_app:create_users' %}">Create Users</a>
     {% include 'classes/card-user-test.html' %}
 {% endblock content %}

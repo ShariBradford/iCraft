@@ -1,4 +1,6 @@
 from django.db import models
+from django import forms
+from django.forms import ModelForm
 from login_app.models import User
 from localflavor.us.models import USStateField
 # from django.utils import timezone
@@ -13,6 +15,15 @@ class Interest(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.id})'
+
+class InterestForm(ModelForm):
+    class Meta:
+        model = Interest
+        fields = ['name', 'description']
+        widgets = {
+            'name' : forms.TextInput(attrs={'class':'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+        }
 
 class Course(models.Model):
     #The first element in each tuple is the actual value to be set on the model, and the second element is the human-readable name. 
@@ -51,6 +62,23 @@ class Course(models.Model):
 
     def get_absolute_url(self):
         return f'/classes/{self.id}'
+
+class CourseForm(ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'tag_line', 'date', 'location', 'location_type', 'creator', 'max_size', 'areas_of_interest', ]
+        widgets = {
+            'title' : forms.TextInput(attrs={'class':'form-control'}),
+            'tag_line' : forms.TextInput(attrs={'class':'form-control'}),
+            'location' : forms.TextInput(attrs={'class':'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'date': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'location_type': forms.Select(attrs={'class': 'form-control'}),
+            'max_size': forms.NumberInput(attrs={'class': 'form-control'}),
+            'areas_of_interest': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'creator': forms.HiddenInput(attrs={'class': 'form-control'}),
+       }
+
 
 # class User_Uploads(models.Model):
 #     user = models.ForeignKey(User,related_name="uploads", on_delete=models.CASCADE)

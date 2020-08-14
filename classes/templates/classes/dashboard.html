@@ -1,5 +1,9 @@
 {% extends 'classes/base.html' %}
 
 {% block content %}
+    <div class="header d-flex align-items-center">
+        <h1 class="mr-3">Courses</h1>
+        <a href="{% url 'classes:get_class' %}" class="btn btn-info" role="button" style="font-weight:bold;">New</a>
+    </div>
     {% include 'classes/card-course.html' %}
 {% endblock content %}
