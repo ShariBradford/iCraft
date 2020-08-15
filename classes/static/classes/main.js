@@ -35,6 +35,7 @@ function toggleFavorite(courseId, $element) {
     return $.ajax(options);
 }
 
+/*
 $('.container.main').on('click', '.favorite', function(e){
     //e.preventDefault();
     var courseId = $(this).closest('.card').attr('id');
@@ -42,3 +43,5 @@ $('.container.main').on('click', '.favorite', function(e){
     toggleFavorite(courseId, $(this));
     return false;
 });
+*/
+

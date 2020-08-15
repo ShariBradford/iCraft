@@ -98,6 +98,28 @@ def user_profile(request,profiled_user_id):
     }
     return render(request, 'user-profile.html', context)
 
+def update_user_profile(request, profiled_user_id):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/')
+
+    user = User.objects.get(id=request.session['user_id'])
+    profile = user.profile
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect(f'/users/{user.id}')
+    
+    else: #this is a GET request so create a blank form
+        form = UserProfileForm(instance=profile)
+    
+    context = {
+        'user': user,
+        'form': form,
+    }
+    return render(request,'user-profile-form.html', context)
+
 def testdata(request):
     if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
         return redirect('/classes')

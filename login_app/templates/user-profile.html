@@ -4,7 +4,17 @@
 {% block content %}
 <div class="container user-profile">
     <div class="course-header">
-        <h2>{{ profiled_user.full_name }}</h2>
+        <div class="d-inline-flex align-items-center">
+            <h2>{{ profiled_user.full_name }}</h2>
+            {% if user == profiled_user %}
+            <span class="edit-profile ml-1" title="Edit" style="color:#009EC3">
+                <a href="{% url 'login_app:update_user_profile' profiled_user_id=user.id %}">
+                    <i class="fas fa-pen"></i>
+                </a>
+            </span>
+            {% endif %}
+        </div>
+
         <h6 class="mb-2 text-muted">Location: {{ location }}</h6> 
     </div>    
 

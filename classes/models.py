@@ -14,6 +14,9 @@ class Interest(models.Model):
     updated_at = models.DateTimeField(auto_now = True)
 
     def __str__(self):
+        return self.name
+
+    def __repr__(self):
         return f'{self.name} ({self.id})'
 
 class InterestForm(ModelForm):
@@ -76,7 +79,7 @@ class CourseForm(ModelForm):
             'location_type': forms.Select(attrs={'class': 'form-control'}),
             'max_size': forms.NumberInput(attrs={'class': 'form-control'}),
             'areas_of_interest': forms.SelectMultiple(attrs={'class': 'form-control'}),
-            'creator': forms.HiddenInput(attrs={'class': 'form-control'}),
+            #'creator': forms.HiddenInput(attrs={'class': 'form-control'}),
        }
 
 
@@ -122,6 +125,10 @@ class UserProfileManager(models.Manager):
 
         return profile
 
+def user_directory_path(self, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f'/users/user_{self.user.id}/{filename}'
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User,models.CASCADE,related_name="profile")
     company = models.CharField(max_length=255, blank=True)
@@ -129,8 +136,9 @@ class UserProfile(models.Model):
     city = models.CharField(max_length=255, blank=True)
     state = USStateField(blank=True)
     bio =  models.TextField(blank=True)
-    areas_of_interest = models.ManyToManyField(Interest,related_name="related_profiles")
+    areas_of_interest = models.ManyToManyField(Interest,related_name="related_profiles", null=True,blank=True)
     birth_date = models.DateTimeField(null=True, blank=True)
+    profile_pic = models.ImageField(upload_to=user_directory_path, null=True)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
 
@@ -144,4 +152,22 @@ class UserProfile(models.Model):
 
     def get_absolute_url(self):
         return f'/users/{self.user.id}' #use the userid for the profile, not profile.id
+
+class UserProfileForm(ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['company', 'address', 'city', 'state', 'bio', 'areas_of_interest', 'birth_date',]
+        help_texts = {
+            'birth_date': ('Enter date and time in format 10/25/2006 11:30 AM'),
+        }
+        widgets = {
+            'company' : forms.TextInput(attrs={'class':'form-control'}),
+            'address' : forms.TextInput(attrs={'class':'form-control'}),
+            'city' : forms.TextInput(attrs={'class':'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control'}),
+            'birth_date': forms.DateTimeInput(attrs={'class': 'form-control'}),
+            'state': forms.Select(attrs={'class': 'form-control'}),
+            'areas_of_interest': forms.SelectMultiple(attrs={'class': 'form-control',}),
+       }
+
 
