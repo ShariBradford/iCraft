@@ -3,14 +3,17 @@
 
 {% block content %}
 <div class="container">
-    <h1>Profile</h1>
+    <h1>Hey {{ profiled_user.first_name }}, let's get to know each other!</h1>
     <div class="row">
         <div class="col-md-8">
-            <form action="{% url 'login_app:update_user_profile' profiled_user_id=user.id %}" method="POST" role="form" novalidate>
+            <form action="{% url 'login_app:update_user_profile' profiled_user_id=profiled_user.id %}"
+             method="POST" enctype="multipart/form-data" role="form" novalidate>
                 {% csrf_token %}
                 
                 {% for field in form.visible_fields %}
-                <div class="fieldWrapper form-group" aria-required="{% if field.field.required %}true{% else %}false{% endif %}">
+                <div class="fieldWrapper form-group"
+                 data-id="{{ field.name }}" 
+                 aria-required="{% if field.field.required %}true{% else %}false{% endif %}">
                     {% for error in field.errors %}
                     <p class="alert alert-danger"><strong>{{ error }}</strong></p>
                     {% endfor %}

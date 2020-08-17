@@ -2,9 +2,18 @@
 {% load static %}
 
 {% block content %}
-<div class="container course-details">
+<div class="container course-details" data-id="{{ course.id }}">
     <div class="course-header">
-        <h2>{{ course.title }}</h2>
+        <div class="d-inline-flex align-items-center">
+            <h2>{{ course.title }}</h2>
+            {% if user == course.creator or user.is_admin %}
+            <span class="edit-course ml-1" title="Edit" style="color:#009EC3">
+                <a href="{% url 'classes:update_class' course_id=course.id %}">
+                    <i class="fas fa-pen"></i>
+                </a>
+            </span>
+            {% endif %}
+        </div>
         <h6 class="card-subtitle mb-2 text-muted">{{ course.tag_line }}</h6>
         <h6 class="card-subtitle mb-2 text-muted">by <a href="{% url 'login_app:user_profile' profiled_user_id=course.creator.id %}">{{ course.creator.first_name_last_initial }}</a></h6>
     </div>
@@ -12,23 +21,25 @@
     <div class="d-inline-flex justify-content-between align-items-start">
         <p class="course-description col-sm-6 col-md-8">{{ course.description }}</p>
         <div class="course-image col-sm-2 col-md-3">
-            <img src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">
+            <!--<img src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">-->
+            <img src="{{ course.profile_pic.url }}" alt="Image of {{ course.title }}">
         </div>
     </div>
 
-    <p>Date: {{ course.date|date:"m/d/Y g:i A" }}</p>
-    <p>
-        <ul class="attendees">Attendees: 
-        {% for attendee in course.attendees.all %}
-            <li><a href="{% url 'login_app:user_profile' profiled_user_id=attendee.id %}">{{ attendee.first_name_last_initial }}</a></li>
-        {% endfor%}
-        </ul>
-    </p>
-    <div class="areas-of-interest">Areas of Interest: 
-        {% for interest in course.areas_of_interest.all %}
-        <a href="{% url 'classes:interest_classes' interest_id=interest.id %}"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
-        {% endfor %}
-    </div><!-- .areas-of-interest -->
-
+    <div class="row">
+        <div class="col-md-8">
+            <p>Date: {{ course.date|date:"m/d/Y g:i A" }}</p>
+            <p>
+                Attendees: {% include 'classes/chip-users.html' with class_name="attendees" users=course.attendees.all %}
+            </p>
+            <div class="areas-of-interest">Areas of Interest: {% include 'classes/chip-interests.html' with class_name="interests" areas_of_interest=course.areas_of_interest.all user=user %}
+            </div><!-- .areas-of-interest -->        
+        </div>
+        <div class="col-md-4">
+            <div class="user-rating">
+                {% include 'classes/ratings-form.html' %}
+            </div>        
+        </div>  
+    </div>
 </div>
 {% endblock content %}

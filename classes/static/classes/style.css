@@ -5,6 +5,7 @@
 .card {
     position: relative;
     width: 300px;
+    height: 395px;
 }
 
 .card-body {
@@ -17,8 +18,13 @@
 
 .card.interest {
     width: 200px;
+    height: 300px;
     margin: 10px;
     /*padding: 10px;*/
+}
+
+.card.interest .card-img-top{
+    height: 150px;
 }
 
 .card .favorite {
@@ -58,21 +64,18 @@ img.course-type {
     width: 100%;
 }
 
-ul.actions li,
-ul.attendees li {
+ul.actions li {
     display: inline-block;
     text-decoration: none;
 }
 
-ul.actions li::after,
-ul.attendees li::after {
+ul.actions li::after {
     content: ' | ';
     margin-left: 2px;
     margin-right: 2px;
 }
 
-ul.actions li:last-child::after,
-ul.attendees li:last-child::after {
+ul.actions li:last-child::after {
     content: '';
 }
 
@@ -109,8 +112,103 @@ ul.actions .fas {
     color:red;
 }
 
-.edit-course {
+.card .edit-course {
     position: absolute;
     right: 20px;
     bottom: 20px;
+}
+
+.user-chip,
+.interest-chip {
+    text-decoration:none;
+    margin-bottom: 4px;
+}
+
+.user-chip:hover {
+    background-color: lightskyblue;
+}
+
+.interest-chip:hover {
+    background-color: lightgray;
+}
+
+.user-chip .user-photo,
+.interest-chip .interest-photo {
+    max-width:50px;
+    position: relative;
+}
+
+.user-chip img {
+    width:100%;
+    border:1px solid #009EC3;
+    border-radius:50%;
+}
+
+.interest-chip img {
+    width:100%;
+}
+
+.user-chip .chip-action,
+.interest-chip .chip-action {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    font-size: 10pt;
+}
+
+.user-profile .areas-of-interest .list-group {
+    width: 100%;
+}
+
+.chip-action-danger {
+    color: red;
+}
+
+.chip-action-success {
+    color: green;
+}
+
+ul#id_number_of_stars {
+    list-style-type: none;
+}
+
+ul#id_number_of_stars li:first-of-type {
+    display:none;
+}
+
+ul#id_number_of_stars li {
+    border: 1px solid #009EC3;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 3px;
+}
+
+ul#id_number_of_stars li:hover {
+    background-color: #009ec3;
+}
+
+ul#id_number_of_stars li:hover label {
+    color: white;
+}
+
+ul#id_number_of_stars li input {
+    margin-right: 3px;
+}
+
+ul#id_number_of_stars li input:checked {
+    font-weight:bold;
+}
+
+.user-rating-this-course {
+    border: 1px solid #009EC3;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 3px;
+    background-color: #009EC3;
+    color: white;
+    font-weight: bold;
+}
+
+.pagination {
+    margin-bottom: 0 !important;
 }

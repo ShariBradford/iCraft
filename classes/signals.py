@@ -8,4 +8,6 @@ def create_user_profile(sender, **kwargs):
     user = kwargs["instance"]
     if kwargs["created"]:
         profile = UserProfile(user=user)
+        if hasattr(user, 'birth_date'):
+            profile.birth_date = user.birth_date
         profile.save()

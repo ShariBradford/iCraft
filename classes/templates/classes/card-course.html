@@ -1,83 +1,93 @@
 {% load static %}
 <div class="container courses">
     <div class="row">
-        {% for course in courses %}
-        <div class="card mr-2" id="{{ course.id }}">
+        {% if courses.count %}
+            {% for course in courses %}
+            <div class="card mr-2 my-2" id="{{ course.id }}">
 
-            <img class="card-img-top" src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">
+                <!--<img class="card-img-top" src="{% get_static_prefix %}classes/images/course{{ course.id }}-image1.jpg" alt="Image of {{ course.title }}">-->
+                <img class="card-img-top" src="{{ course.profile_pic.url }}" alt="Image of {{ course.title }}">
 
-            <div class="card-body">
-                <div class="d-flex justify-content-between mr-2">
-                    <!-- container for card top row -->
-                    <div class="d-inline-flex align-items-start">
-                        <!-- container for class name and class_type icon -->
-                        <h5 class="card-title">
-                            <a href="{{ course.get_absolute_url }}">{{ course.title }}</a>
-                        </h5>
-                        <img src="{% get_static_prefix %}classes/images/course-type-{{ course.location_type }}.jpg" class="course-type" title="{{ course.get_location_type_display }}">
-                    </div><!-- end container for class name and class_type icon -->
-                    <span class="attendees">
-                        <small style="font-weight:bold;"><i class="fas fa-users"></i> {{ course.attendees.count }}</small>/{{ course.max_size }}
-                    </span>
-                </div><!-- end card top row -->
-                <h6 class="card-subtitle mb-2 text-muted">by <a href="{% url 'login_app:user_profile' profiled_user_id=course.creator.id %}">{{ course.creator.first_name_last_initial }}</a></h6> 
-                <p class="card-text">
-                    {{ course.tag_line }}
-                </p>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mr-2">
+                        <!-- container for card top row -->
+                        <div class="d-inline-flex align-items-start">
+                            <!-- container for class name and class_type icon -->
+                            <h5 class="card-title">
+                                <a href="{{ course.get_absolute_url }}">{{ course.title }}</a>
+                            </h5>
+                            <img src="{% get_static_prefix %}classes/images/course-type-{{ course.location_type }}.jpg" class="course-type" title="{{ course.get_location_type_display }}">
+                        </div><!-- end container for class name and class_type icon -->
+                        <span class="attendees">
+                            <small style="font-weight:bold;"><i class="fas fa-users"></i> {{ course.attendees.count }}</small>/{{ course.max_size }}
+                        </span>
+                    </div><!-- end card top row -->
+                    <h6 class="card-subtitle mb-2 text-muted">by <a href="{% url 'login_app:user_profile' profiled_user_id=course.creator.id %}">{{ course.creator.first_name_last_initial }}</a></h6> 
+                    <p class="card-text">
+                        {{ course.tag_line }}
+                    </p>
 
-                {% if user == course.creator %}
-                <p class="edit-course" title="Edit" style="color:#009EC3">
-                    <a href="{% url 'classes:update_class' course_id=course.id %}">
-                        <i class="fas fa-pen"></i>
+                    {% if user == course.creator %}
+                    <p class="edit-course" title="Edit" style="color:#009EC3">
+                        <a href="{% url 'classes:update_class' course_id=course.id %}">
+                            <i class="fas fa-pen"></i>
+                        </a>
+                    </p>
+                    {% endif %}
+                </div> <!-- .card-body -->
+
+                <div class="card-footer d-flex justify-content-between">
+                    
+                    <div class="areas-of-interest">
+                        {% for interest in course.areas_of_interest.all %}
+                        <a href="{% url 'classes:interest_classes' interest_id=interest.id %}" class="card-link"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
+                        {% endfor %}
+                    </div><!-- .areas-of-interest -->
+
+                    {% if user in course.attendees.all %}
+                    <div class="d-flex flex-column align-items-center">
+                        <span style="color:#009EC3"><i class="fas fa-user-check"></i>Enrolled</span>
+                        <span style="font-size: x-small;"><a href="{% url 'classes:unenroll' course_id=course.id %}" class="text-danger">Unenroll</a></span>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'classes:enroll' course_id=course.id %}" class="btn btn-info" role="button">Enroll</a>
+                    {% endif %}
+
+                    <p class="card-text">
+                        <small class="text-muted">{{ course.date|date:"SHORT_DATE_FORMAT" }}</small>
+                    </p>
+
+                </div><!-- end .card-footer -->
+
+                <div class="favorite">
+                    {% if user in course.favorited_by.all %}
+                    <a href="{% url 'classes:unfavorite' course_id=course.id %}" title="Un-favorite">
+                        <span style="color:red;"><i class="fas fa-heart"></i></span>
                     </a>
-                </p>
-                {% endif %}
-            </div> <!-- .card-body -->
+                    {% else %}
+                    <a href="{% url 'classes:favorite' course_id=course.id %}" title="Favorite">
+                        <span style="color:gray;"><i class="fas fa-heart"></i></span>
+                    </a>
+                    {% endif %}
+                </div><!-- .favorite -->
 
-            <div class="card-footer d-flex justify-content-between">
-                
-                <div class="areas-of-interest">
-                    {% for interest in course.areas_of_interest.all %}
-                    <a href="{% url 'classes:interest_classes' interest_id=interest.id %}" class="card-link"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
-                    {% endfor %}
-                </div><!-- .areas-of-interest -->
+                {% for interest in course.areas_of_interest.all %}
+                    {% if interest in user.profile.areas_of_interest.all %}
+                    <div class="recommended">
+                        RECOMMENDED
+                    </div>
+                    {% endif %}
+                {% endfor %}
 
-                {% if user in course.attendees.all %}
-                <div class="d-flex flex-column align-items-center">
-                    <span style="color:#009EC3"><i class="fas fa-user-check"></i>Enrolled</span>
-                    <span style="font-size: x-small;"><a href="{% url 'classes:unenroll' course_id=course.id %}" class="text-danger">Unenroll</a></span>
-                </div>
-                {% else %}
-                <a href="{% url 'classes:enroll' course_id=course.id %}" class="btn btn-info" role="button">Enroll</a>
-                {% endif %}
-
-                <p class="card-text">
-                    <small class="text-muted">{{ course.date|date:"SHORT_DATE_FORMAT" }}</small>
-                </p>
-
-            </div><!-- end .card-footer -->
-
-            <div class="favorite">
-                {% if user in course.favorited_by.all %}
-                <a href="{% url 'classes:unfavorite' course_id=course.id %}" title="Un-favorite">
-                    <span style="color:red;"><i class="fas fa-heart"></i></span>
-                </a>
-                {% else %}
-                <a href="{% url 'classes:favorite' course_id=course.id %}" title="Favorite">
-                    <span style="color:gray;"><i class="fas fa-heart"></i></span>
-                </a>
-                {% endif %}
-            </div><!-- .favorite -->
-
-            {% for interest in course.areas_of_interest.all %}
-                {% if interest in user.profile.areas_of_interest.all %}
-                <div class="recommended">
-                    RECOMMENDED
-                </div>
-                {% endif %}
+            </div><!-- .card -->
             {% endfor %}
-
-        </div><!-- .card -->
-        {% endfor %}
+        {% else %}
+            <p>Query returned no results</p>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="pagination">
+            {% include 'classes/pagination.html' %}        
+        </div>
     </div>
 </div>

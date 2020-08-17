@@ -6,6 +6,7 @@ app_name = 'classes'
 urlpatterns = [
     path('', views.index, name="index"),
     path('new', views.get_class, name='get_class'),
+    path('<int:course_id>/rate', views.rate_class, name="rate_class"),
     path('<int:course_id>/update', views.update_class, name="update_class"),
     path('<int:course_id>', views.class_details, name="class_details"),
 
@@ -20,6 +21,7 @@ urlpatterns = [
     path('interests/<int:interest_id>/add', views.add_interest, name="add_interest"),
     path('interests/<int:interest_id>/remove', views.remove_interest, name="remove_interest"),
     path('interests/<int:interest_id>', views.interest_classes, name="interest_classes"),
+    
     path('favorites', views.favorites, name="favorite_classes"),
-
+    path('search', views.search_classes, name="search_classes"),
 ]

@@ -5,6 +5,9 @@ from login_app.models import User
 from localflavor.us.models import USStateField
 # from django.utils import timezone
 from datetime import datetime, date
+from django.conf import settings
+import os
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Interest(models.Model):
     #id INT
@@ -27,6 +30,10 @@ class InterestForm(ModelForm):
             'name' : forms.TextInput(attrs={'class':'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+def course_directory_path(self, filename):
+    # file will be uploaded to MEDIA_ROOT/course_<id>/<filename>
+    return f'courses/course_{self.id}/{filename}'
 
 class Course(models.Model):
     #The first element in each tuple is the actual value to be set on the model, and the second element is the human-readable name. 
@@ -55,6 +62,12 @@ class Course(models.Model):
     max_size = models.PositiveIntegerField()
     areas_of_interest = models.ManyToManyField(Interest,related_name="related_courses")
     favorited_by = models.ManyToManyField(User,related_name="favorite_courses")
+    profile_pic = models.ImageField(
+        upload_to=course_directory_path, 
+        default= 'courses/blank-course.jpg',
+        blank=True,
+        null=True,
+        )
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
 
@@ -69,8 +82,9 @@ class Course(models.Model):
 class CourseForm(ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'tag_line', 'date', 'location', 'location_type', 'creator', 'max_size', 'areas_of_interest', ]
+        fields = ['profile_pic', 'title', 'tag_line', 'description', 'date', 'location_type', 'location', 'max_size', 'areas_of_interest', ]
         widgets = {
+            'profile_pic': forms.ClearableFileInput(attrs={'class': 'form-control',}),
             'title' : forms.TextInput(attrs={'class':'form-control'}),
             'tag_line' : forms.TextInput(attrs={'class':'form-control'}),
             'location' : forms.TextInput(attrs={'class':'form-control'}),
@@ -82,6 +96,38 @@ class CourseForm(ModelForm):
             #'creator': forms.HiddenInput(attrs={'class': 'form-control'}),
        }
 
+class Rating(models.Model):
+    RATING_CHOICES = (
+    (1, 'It was awful!'),
+    (2, 'Not so great.'),
+    (3, 'Just Ok.'),
+    (4, 'I liked it!'),
+    (5, 'Pretty freakin awesome!')
+)
+    course = models.ForeignKey(Course,related_name="ratings", on_delete=models.CASCADE)
+    user = models.ForeignKey(User,related_name="ratings", on_delete=models.CASCADE)
+    number_of_stars = models.IntegerField(
+        choices=RATING_CHOICES,
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+)
+    comments = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add = True)
+    updated_at = models.DateTimeField(auto_now = True)
+
+    def __str__(self):
+        return f'{self.number_of_stars} star rating for {self.course}'
+
+class RatingForm(ModelForm):
+    class Meta:
+        model = Rating
+        fields = ['number_of_stars', 'comments', ]
+        labels = {
+            'number_of_stars': 'Rating',
+        }
+        widgets = {
+            'number_of_stars': forms.RadioSelect(attrs={'class': 'form-check-inline d-flex flex-wrap'}),
+            'comments': forms.Textarea(attrs={'class': 'form-control'}),
+       }
 
 # class User_Uploads(models.Model):
 #     user = models.ForeignKey(User,related_name="uploads", on_delete=models.CASCADE)
@@ -127,7 +173,7 @@ class UserProfileManager(models.Manager):
 
 def user_directory_path(self, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return f'/users/user_{self.user.id}/{filename}'
+    return f'users/user_{self.user.id}/{filename}'
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User,models.CASCADE,related_name="profile")
@@ -138,7 +184,12 @@ class UserProfile(models.Model):
     bio =  models.TextField(blank=True)
     areas_of_interest = models.ManyToManyField(Interest,related_name="related_profiles", null=True,blank=True)
     birth_date = models.DateTimeField(null=True, blank=True)
-    profile_pic = models.ImageField(upload_to=user_directory_path, null=True)
+    profile_pic = models.ImageField(
+        upload_to=user_directory_path, 
+        default= 'users/blank-user.jpg',
+        blank=True,
+        null=True,
+        )
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
 
@@ -156,11 +207,12 @@ class UserProfile(models.Model):
 class UserProfileForm(ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['company', 'address', 'city', 'state', 'bio', 'areas_of_interest', 'birth_date',]
+        fields = ['profile_pic', 'company', 'address', 'city', 'state', 'bio', 'areas_of_interest', 'birth_date', ]
         help_texts = {
             'birth_date': ('Enter date and time in format 10/25/2006 11:30 AM'),
         }
         widgets = {
+            'profile_pic': forms.ClearableFileInput(attrs={'class': 'form-control',}),
             'company' : forms.TextInput(attrs={'class':'form-control'}),
             'address' : forms.TextInput(attrs={'class':'form-control'}),
             'city' : forms.TextInput(attrs={'class':'form-control'}),

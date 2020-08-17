@@ -1,0 +1,33 @@
+{% load static %}
+<!-- 
+    Template renders a horizontal list of rectangle "chips" with photo and  name.
+    Parameters:
+        - areas_of_interest: List of interests (e.g., course.areas_of_interest)
+        - class_name: OPTIONAL. Name of the class to assign to the containing div (e.g., "attendees")
+        - user: OPTIONAL. Current user context.
+-->
+<div class="{% if class_name %}{{ class_name }}{% endif %} d-flex flex-wrap flex-fill"> 
+    {% for interest in areas_of_interest %}
+        <div class="chip interest-chip list-group-item">
+            <a href="{% url 'classes:interest_classes' interest_id=interest.id %}">
+                <div class="d-flex justify-content-start align-items-center">
+                    <div class="interest-photo mr-2">
+                        <img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="Image of {{ interest.name }}">
+                        {% if user %}
+                            {% if interest in user.profile.areas_of_interest.all %}
+                            <a href="{% url 'classes:remove_interest' interest_id=interest.id %}" class="chip-action chip-action-danger" title="Remove from Profile">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'classes:add_interest' interest_id=interest.id %}" class="chip-action chip-action-success" title="Add to Profile">
+                                <i class="fas fa-plus-circle"></i>
+                            </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    <span>{{ interest.name }}</span>
+                </div>
+            </a>
+        </div>
+    {% endfor%}
+</div>

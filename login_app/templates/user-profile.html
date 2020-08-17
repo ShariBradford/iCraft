@@ -6,9 +6,9 @@
     <div class="course-header">
         <div class="d-inline-flex align-items-center">
             <h2>{{ profiled_user.full_name }}</h2>
-            {% if user == profiled_user %}
+            {% if user == profiled_user or user.is_admin %}
             <span class="edit-profile ml-1" title="Edit" style="color:#009EC3">
-                <a href="{% url 'login_app:update_user_profile' profiled_user_id=user.id %}">
+                <a href="{% url 'login_app:update_user_profile' profiled_user_id=profiled_user.id %}">
                     <i class="fas fa-pen"></i>
                 </a>
             </span>
@@ -21,14 +21,12 @@
     <div class="d-flex justify-content-between align-items-start">
         <div class="col-sm-6 col-md-8">
             <p>{{ profiled_user.profile.bio }}</p>
-            <div class="areas-of-interest">Interests: 
-                {% for interest in profiled_user.profile.areas_of_interest.all %}
-                <a href="/classes/interests/{{ interest.id }}"><img src="{% get_static_prefix %}classes/images/interests{{ interest.id }}-selected.png" alt="{{ interest.name }}" title="{{ interest.name }}"></a>
-                {% endfor %}
+            <div class="areas-of-interest">Interests: {% include 'classes/chip-interests.html' with class_name="interests" areas_of_interest=profiled_user.profile.areas_of_interest.all user=user %}
             </div><!-- .areas-of-interest -->    
         </div>
         <div class="profile-image col-sm-2 col-md-3">
-            <img src="{% get_static_prefix %}classes/images/user-{{ profiled_user.id }}.jpg" alt="Image of {{ profiled_user.first_name_last_initial }}">
+            <!--<img src="{% get_static_prefix %}classes/images/user-{{ profiled_user.id }}.jpg" alt="Image of {{ profiled_user.first_name_last_initial }}">-->
+            <img src="{{ profiled_user.profile.profile_pic.url }}" alt="Image of {{ profiled_user.first_name_last_initial }}" width="100%">
         </div>
     </div>
 

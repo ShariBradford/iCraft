@@ -4,6 +4,7 @@ from classes.models import *
 import bcrypt
 from django.contrib import messages
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 import os
 import json
 import random
@@ -27,8 +28,8 @@ def register(request):
     else:
         user = User.objects.register(request.POST)
         request.session['user_id'] = user.id
-        messages.success(request,"Successfully logged in!")
-        return redirect('/classes')
+        messages.success(request,"Successfully registered!")
+        return redirect(f'/users/{user.id}/update')
 
 def login(request):
     if request.method != "POST":
@@ -103,19 +104,36 @@ def update_user_profile(request, profiled_user_id):
         return redirect('/')
 
     user = User.objects.get(id=request.session['user_id'])
-    profile = user.profile
+    profiled_user = User.objects.get(id=profiled_user_id)
+    profile = profiled_user.profile
 
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, instance=profile)
+
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
-            form.save()
-            return redirect(f'/users/{user.id}')
+
+            profile = form.save(commit=False)
+
+            # if the user deleted the previous photo, add the default photo
+            if form.cleaned_data['profile_pic'] == None or form.cleaned_data['profile_pic'] == False:
+                profile.profile_pic = UserProfile._meta.get_field('profile_pic').get_default()
+
+            #save the profile and then save the many-to-many data from the form
+            profile.save()
+
+            # If your model has a many-to-many relation and you specify commit=False when you save a form, 
+            # Django cannot immediately save the form data for the many-to-many relation.
+            # Manually save many-to-many data
+            form.save_m2m() 
+
+            return redirect(f'/users/{profiled_user_id}')
     
     else: #this is a GET request so create a blank form
         form = UserProfileForm(instance=profile)
     
     context = {
         'user': user,
+        'profiled_user': profiled_user,
         'form': form,
     }
     return render(request,'user-profile-form.html', context)
@@ -177,5 +195,21 @@ def create_users(request):
         i += 1
         if i > 20:
             break 
+
+    return redirect('/testing')
+
+def reset_users(request):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/classes')
+
+    user = User.objects.get(id=request.session['user_id'])
+    if not user.is_admin:
+        return redirect('/classes')
+
+    for one_user in User.objects.all():
+        print(f"Updating profile picture for {one_user.full_name()} to {UserProfile._meta.get_field('profile_pic').get_default()}.")
+
+        one_user.profile.profile_pic = UserProfile._meta.get_field('profile_pic').get_default()
+        one_user.profile.save()
 
     return redirect('/testing')

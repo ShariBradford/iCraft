@@ -6,10 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     {% load static %}
 
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'classes/apple-touch-icon.png' %}">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'classes/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'classes/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'classes/site.webmanifest' %}">
+    <!-- favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'classes/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'classes/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'classes/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'classes/favicon/site.webmanifest' %}">
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'classes/style.css' %}">
@@ -17,7 +18,7 @@
 </head>
 <body>   
     <div class="container main">
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark ">
             <a class="navbar-brand" href="{% url 'classes:index' %}" title="Craft something new today!">iCraft</a>
             <span class="navbar-text">Welcome, {{ user.first_name_last_initial }}, craft something new today!</span>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
@@ -25,6 +26,10 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarNav">
+                <form method="GET" action="." class="search-form form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" name="q" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+                </form>
                 <ul class="navbar-nav">
                     {% if user.id == 1 %}
                     <li class="nav-item">
@@ -54,6 +59,6 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
     <script src="https://kit.fontawesome.com/5eddd1b245.js" crossorigin="anonymous"></script>
-    <!--<script src="{% static 'classes/main.js' %}"></script>-->
+    <script src="{% static 'classes/main.js' %}"></script>
 </body>
 </html>

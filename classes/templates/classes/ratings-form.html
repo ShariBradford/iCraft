@@ -1,0 +1,48 @@
+{% load static %}
+
+<div class="all-ratings">
+    <h3>User Ratings</h3>
+    {% if average_rating < 1 %}
+    <small>No reviews yet</small>
+    {% else %}
+    <div class="my-3">
+        <span class="user-rating-this-course">
+            {{ average_rating_text }}
+        </span> <br>
+        <small >{{ average_rating }} out of 5 based on {{ all_ratings.count }} review(s)  </small>
+    </div>
+    {% endif %}                
+</div>
+
+{% if user_has_rated_course %}
+<div class="my-3">
+    <small class="text-muted">Your rating: </small>
+    <span class="user-rating-this-course">
+        {{ user_rating_this_course.get_number_of_stars_display }}
+    </span> <br>
+    <small class="text-muted">Your comment: </small>
+    <span>{{ user_rating_this_course.comments }}</span>
+</div>
+
+{% else %}
+<form class="ratings-form" action="{% url 'classes:rate_class' course_id=course.id %}" method="POST">
+    {% csrf_token %}
+    {% for field in ratings_form.visible_fields %}
+    <div class="fieldWrapper form-group"
+    data-id="{{ field.name }}" 
+    aria-required="{% if field.field.required %}true{% else %}false{% endif %}">
+        {% for error in field.errors %}
+        <p class="alert alert-danger"><strong>{{ error }}</strong></p>
+        {% endfor %}
+        
+        {{ field.label_tag }}{% if field.field.required %}<span class="required">*</span>{% endif %}
+        {{ field }}
+        {% if field.help_text %}
+        <p class="help">{{ field.help_text|safe }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <input type="submit" class="btn btn-primary mb-2" value="Submit" />
+</form>
+{% endif %}

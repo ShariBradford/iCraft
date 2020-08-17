@@ -11,6 +11,8 @@
         {% endif %}
     {%  endfor %}
     {% endif %}
+
+    <a href="{% url 'login_app:reset_users' %}">Reset user profile pictures</a>
     <h1>Test User Data</h1>
     <a href="{% url 'login_app:create_users' %}">Create Users</a>
     {% include 'classes/card-user-test.html' %}

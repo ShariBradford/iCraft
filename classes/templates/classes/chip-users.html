@@ -1,0 +1,19 @@
+{% load static %}
+<!-- 
+    Template renders a horizontal list of rectangle "chips" with user profile photo and user name.
+    Parameters:
+        - class_name: name of the class to assign to the containing div (e.g., "attendees")
+        - users: list of users (e.g., course.attendees)
+-->
+<div class="{% if class_name %}{{ class_name }}{% endif %} list-group list-group-horizontal-sm"> 
+    {% for user in users %}
+        <a href="{% url 'login_app:user_profile' profiled_user_id=user.id %}" class="chip user-chip list-group-item">
+            <div class="d-flex justify-content-start align-items-center">
+                <div class="user-photo mr-1">
+                    <img src="{{ user.profile.profile_pic.url }}" alt="Image of {{ user.first_name_last_initial }}">
+                </div>
+                <span>{{ user.first_name_last_initial }}</span>
+            </div>
+        </a>
+    {% endfor%}
+</div>

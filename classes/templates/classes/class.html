@@ -6,11 +6,16 @@
     <h1>Add a class</h1>
     <div class="row">
         <div class="col-md-8">
-            <form action="{% if action == 'new' %}{% url 'classes:get_class' %}{% else %}{% url 'classes:update_class' course_id=course.id %}{% endif %}" method="POST" role="form" novalidate>
+            <form action="{% if action == 'new' %}{% url 'classes:get_class' %}{% else %}{% url 'classes:update_class' course_id=course.id %}{% endif %}"
+             enctype="multipart/form-data" 
+             method="POST" 
+             role="form" novalidate>
                 {% csrf_token %}
                 
                 {% for field in form.visible_fields %}
-                <div class="fieldWrapper form-group" aria-required="{% if field.field.required %}true{% else %}false{% endif %}">
+                <div class="fieldWrapper form-group"
+                 data-id="{{ field.name }}" 
+                 aria-required="{% if field.field.required %}true{% else %}false{% endif %}">
                     {% for error in field.errors %}
                     <p class="alert alert-danger"><strong>{{ error }}</strong></p>
                     {% endfor %}

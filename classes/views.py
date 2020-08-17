@@ -2,17 +2,27 @@ from django.shortcuts import render, redirect, HttpResponse, HttpResponseRedirec
 from login_app.models import User
 from .models import *
 from django.contrib import messages
-from django.db.models import F
+from django.db.models import Avg, F, Q
+from django.core.paginator import Paginator
+import math
+
+COURSES_PER_PAGE = 6
 
 # Create your views here.
 def index(request):
     if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
         return redirect('/')
+    
+    courses = Course.objects.all().order_by('date')
+
+    paginator = Paginator(courses, COURSES_PER_PAGE) # NUMBER OF courses per page TO DISPLAY
+    page_number = request.GET.get('page') or 1
+    page_obj = paginator.get_page(page_number)
 
     context = {
         'user': User.objects.get(id=request.session['user_id']),
-        'courses': Course.objects.all().order_by('date'),
-        'first_course': Course.objects.get(id=1),
+        'page_obj': page_obj,
+        'current_page': page_number,
     }
     return render(request, 'classes/dashboard.html', context)
 
@@ -23,11 +33,27 @@ def get_class(request):
     user = User.objects.get(id=request.session['user_id'])
     course = Course(creator=user)
 
+    #POST request ==> save new course
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
+        
+        form = CourseForm(request.POST, request.FILES, instance=course)
         if form.is_valid():
-            form.save()
-            return redirect('/classes')
+        
+            course = form.save(commit=False)
+        
+            # if the user deleted the previous photo, add the default photo
+            if form.cleaned_data['profile_pic'] == None or form.cleaned_data['profile_pic'] == False:
+                course.profile_pic = Course._meta.get_field('profile_pic').get_default()
+
+            #save the course and then save the many-to-many data from the form
+            course.save()
+            
+            # If your model has a many-to-many relation and you specify commit=False when you save a form, 
+            # Django cannot immediately save the form data for the many-to-many relation.
+            # Manually save many-to-many data
+            form.save_m2m() 
+
+            return redirect(f'/classes/{course.id}')
     
     else: #this is a GET request so create a blank form
         form = CourseForm(instance=course)
@@ -39,6 +65,65 @@ def get_class(request):
     }
     return render(request,'classes/class.html', context)
 
+def rate_class(request, course_id):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/')
+
+    user = User.objects.get(id=request.session['user_id'])
+    course = Course.objects.get(id=course_id)
+
+    print(f'Processing rating of course {course.title} by {user.full_name()}')
+    if request.method == 'POST':
+
+        rating = Rating(user=user, course=course)
+        form = RatingForm(request.POST, instance=rating)
+        if form.is_valid():
+            rating = form.save()
+            # rating = form.save(commit=False)
+            # rating.user = user
+            # rating.course = course
+            # rating.save()
+            
+            # return redirect(f'/classes/{course_id}')
+            # return HttpResponse('Thanks!')
+    
+    else: #this is a GET request so create a blank form
+        return redirect(f'/classes/{course.id}')
+    
+    if hasattr(course,'ratings'):
+        if course.ratings.filter(user=user).count() > 0:
+            user_has_rated_course = True
+            user_rating_this_course = course.ratings.filter(user=user).first()
+            form = None
+
+        else:
+            user_has_rated_course = False
+            user_rating_this_course = None
+
+        average_rating = Rating.objects.filter(course=course).aggregate(Avg('number_of_stars'))['number_of_stars__avg'] or 0
+        temp_avg = math.floor(average_rating)
+        temp_rating = Rating(user=user, course=course, number_of_stars = temp_avg)
+        average_rating_text = temp_rating.get_number_of_stars_display()
+        all_ratings = course.ratings.all()
+
+    else:
+        average_rating = 0
+        average_rating_text = ''
+        all_ratings = None
+
+    context = {
+        'user': user,
+        'course': course,
+        'average_rating': average_rating,
+        'average_rating_text' : average_rating_text,
+        'all_ratings': all_ratings,
+        'user_has_rated_course': user_has_rated_course,
+        'user_rating_this_course': user_rating_this_course,
+        'ratings_form': form,
+    }
+   
+    return render(request, 'classes/ratings-form.html', context)
+
 def update_class(request, course_id):
     if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
         return redirect('/')
@@ -47,10 +132,24 @@ def update_class(request, course_id):
     course = Course.objects.get(id=course_id)
 
     if request.method == 'POST':
-        form = CourseForm(request.POST, instance=course)
+
+        form = CourseForm(request.POST, request.FILES, instance=course)
         if form.is_valid():
-            form.save()
-            return redirect('/classes')
+
+            course = form.save(commit=False)
+
+            # if the user deleted the previous photo, add the default photo
+            if form.cleaned_data['profile_pic'] == None or form.cleaned_data['profile_pic'] == False:
+                course.profile_pic = Course._meta.get_field('profile_pic').get_default()
+            
+            course.save()
+            
+            # If your model has a many-to-many relation and you specify commit=False when you save a form, 
+            # Django cannot immediately save the form data for the many-to-many relation.
+            # Manually save many-to-many data
+            form.save_m2m() 
+
+            return redirect(f'/classes/{course_id}')
     
     else: #this is a GET request so create a blank form
         form = CourseForm(instance=course)
@@ -67,9 +166,44 @@ def class_details(request, course_id):
     if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
         return redirect('/')
 
+    user = User.objects.get(id=request.session['user_id'])
+    course = Course.objects.get(id=course_id)
+
+    if hasattr(course,'ratings'):
+
+        if course.ratings.filter(user=user).count() > 0:
+            print(f"Ratings for {course.title}: {course.ratings.filter(user=user).count()}")
+            user_has_rated_course = True
+            user_rating_this_course = course.ratings.filter(user=user).first()
+            form = None
+
+        else:
+            user_has_rated_course = False
+            user_rating_this_course = None
+            form = RatingForm()
+
+        average_rating = Rating.objects.filter(course=course).aggregate(Avg('number_of_stars'))['number_of_stars__avg'] or 0
+        temp_avg = math.floor(average_rating)
+        temp_rating = Rating(user=user, course=course, number_of_stars = temp_avg)
+        average_rating_text = temp_rating.get_number_of_stars_display()
+        all_ratings = course.ratings.all()
+
+    else:
+        print(f"No ratings yet for {course.title}.")
+        form = RatingForm()
+        average_rating = 0
+        average_rating_text = ''
+        all_ratings = None
+
     context = {
-        'user': User.objects.get(id=request.session['user_id']),
-        'course': Course.objects.get(id=course_id),
+        'user': user,
+        'course': course,
+        'average_rating': average_rating,
+        'average_rating_text': average_rating_text,
+        'all_ratings': all_ratings,
+        'user_has_rated_course': user_has_rated_course,
+        'user_rating_this_course': user_rating_this_course,
+        'ratings_form': form,
     }
     return render(request, 'classes/course-details.html', context)
 
@@ -237,3 +371,29 @@ def unfavorite(request, course_id):
     #return HttpResponse("Success")
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+def search_classes(request):
+    if (not 'user_id' in request.session.keys()) or (request.session['user_id'] == ''):
+        return redirect('/')
+
+    query = request.GET.get('q', '')
+    print("SEARCHING FOR: ", query)
+    if query:
+        queryset = (Q(title__icontains = query)) | (Q(tag_line__icontains=query)) | (Q(description__icontains=query))
+        courses = Course.objects.filter(queryset).distinct().order_by('date')
+        print("COURSES: ", courses)
+    else:
+        courses = Course.objects.all().order_by('date')
+
+    paginator = Paginator(courses, COURSES_PER_PAGE) #show 9 courses per page
+    page_number = request.GET.get('page') or 1
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'user': User.objects.get(id=request.session['user_id']),
+        'page_obj': page_obj,
+        'courses': page_obj.object_list,
+        'current_page': page_number,
+        'search_query': query,
+    }
+    return render(request, 'classes/card-course.html', context)
+    # return render(request, 'classes/dashboard.html', context)

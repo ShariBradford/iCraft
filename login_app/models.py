@@ -147,6 +147,7 @@ class User(models.Model):
     birth_date = models.DateTimeField(default=datetime.date.today)
     email = models.EmailField(max_length=255)
     password = models.CharField(max_length=255)
+    is_admin = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add = True)
     updated_at = models.DateTimeField(auto_now = True)
     # company = models.CharField(max_length=255, blank=True)

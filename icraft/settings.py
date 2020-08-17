@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -120,12 +121,10 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
 STATIC_URL = '/static/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
 
-from django.conf.global_settings import DATETIME_INPUT_FORMATS
+MEDIA_ROOT = 'media'
+MEDIA_URL = '/media/'
 
 # DATETIME_INPUT_FORMATS += ('%m/%d/%Y %I:%M %p',)
 # CUSTOM FORMAT MUST APPEAR AT THE TOP OF THE LIST, so 
